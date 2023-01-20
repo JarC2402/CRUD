@@ -1,25 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import ProductsForm from './Components/ProductsForm'
 import ProductsList from './Components/ProductsList'
-import productData from './data/productData'
+import axios from 'axios'
 
 function App() {
-  const [products, setProducts] = useState(productData)
+  const [products, setProducts] = useState([])
   const [productUpdate, setProductUpdate] = useState(null)
   
+useEffect(() => {
+  axios.get("https://products-crud.academlo.tech/products/")
+  .then(resp => setProducts(resp.data))
+  .catch(error => console.error.log(error))
+}, [])
+
+const getApiData = () => {
+  axios.get("https://products-crud.academlo.tech/products/")
+  .then(resp => setProducts(resp.data))
+  .catch(error => console.error.log(error))
+}
 
   const addProduct = (data) => {
-    setProducts  ([...products, data])
-    console.log("new Prodc", products);
+    axios
+    .post("https://products-crud.academlo.tech/products/", data)
+    .then( () => getApiData())
+    .catch(error => console.error.log(error))
   }
 
+
+
   const deletProduct = (productId) => {
-    
-
-    const filterProduct = products.filter( product => product.id != productId)
-
-    setProducts(filterProduct)
+  axios
+  .delete(`https://products-crud.academlo.tech/products/${productId}/`)    
+  .then(() => getApiData() )
+  .catch(error => console.error.log(error))
   }
 
   const editProduc = (selecProduc) => {
@@ -27,9 +41,11 @@ function App() {
   }
 
   const updateData = (newProducData) => {
-   const index = products.findIndex ((findProduct) => findProduct.id == newProducData.id)
-   products[index] = newProducData
-   setProducts ([...products])
+   axios
+   .put(`https://products-crud.academlo.tech/products/${newProducData.id}/`, newProducData) 
+   .then(() => getApiData() )
+   .catch((error) => console.error(error));
+
    setProductUpdate(null)
   }
   
